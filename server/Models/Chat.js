@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-
+  
 
 const ChatSchema = new mongoose.Schema({
     userId : {type : String , ref : "User" , required : true},

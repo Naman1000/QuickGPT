@@ -4,17 +4,17 @@ import Transaction from "../Models/Transaction.js";
 import User from "../Models/User.js";
 
 
-export const stripeWebhooks = async(req, res)=> {
+export const stripeWebhooks = async(request, response)=> {
     
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-    const sig = req.headers("stripe-signature")
+    const sig = request.headers("stripe-signature")
 
-    let event;
+    let event; 
 
     try {
-        event = stripe.webhooks.constructEvent(req.body , sig , process.env.STRIPE_WEBHOOK_SECRET)
+        event = stripe.webhooks.constructEvent(request.body , sig , process.env.STRIPE_WEBHOOK_SECRET)
     } catch (error) {
-    return res.status(400).send(`Webhook Error :${error.message}`)        
+    return response.status(400).send(`Webhook Error :${error.message}`)        
     }
     try{
         switch(event.type){
@@ -41,7 +41,7 @@ export const stripeWebhooks = async(req, res)=> {
                         await transaction.save();
                 }
                 else{
-                    return res.json({received : true , message : "Ignored event : Invalid app"})
+                    return response.json({received : true , message : "Ignored event : Invalid app"})
                 }
                 break;
             }
@@ -49,11 +49,9 @@ export const stripeWebhooks = async(req, res)=> {
                 console.log("Unhandled event type:" , event.type)
                 break;
         }
-        res.json({received : true})
+        response.json({received : true})
     }catch(error){
         console.error("WebHook processing error: " , error)
-        res.status(500).send("Internal Server Error")
+        response.status(500).send("Internal Server Error")
     }
-
-
 }
